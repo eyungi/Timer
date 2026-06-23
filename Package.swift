@@ -2,12 +2,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "TimerForTerry",
+    name: "Timer",
     platforms: [.macOS(.v14)],
     targets: [
         .executableTarget(
-            name: "TimerForTerry",
-            path: "Sources/TimerForTerry"
+            name: "Timer",
+            path: "Sources/Timer"
         )
     ]
 )

@@ -1,4 +1,4 @@
-# Timer for Terry
+# Timer
 
 Focus-To-Do 스타일의 포모도로 타이머를 **작은 플로팅 창**으로 만든 macOS 네이티브 앱.
 Focus-To-Do의 측정 화면이 너무 커서, 화면 한쪽에 살짝 떠있는 미니멀한 위젯으로 다시 만들었습니다.
@@ -32,18 +32,18 @@ Focus-To-Do의 측정 화면이 너무 커서, 화면 한쪽에 살짝 떠있는
 ### 2. 내려받아 빌드
 
 ```bash
-git clone https://github.com/<아이디>/timer-for-terry.git
-cd timer-for-terry
+git clone https://github.com/<아이디>/timer.git
+cd timer
 ./build-app.sh
 ```
 
-빌드가 끝나면 `~/Applications/TimerForTerry.app` 에 자동 설치됩니다.
+빌드가 끝나면 `~/Applications/Timer.app` 에 자동 설치됩니다.
 (`Permission denied`가 나면 `chmod +x build-app.sh` 후 다시 실행)
 
 ### 3. 실행 & Dock 고정
 
 ```bash
-open ~/Applications/TimerForTerry.app
+open ~/Applications/Timer.app
 ```
 
 - 실행하면 화면 우측 상단에 작은 타이머 창이 뜹니다.
@@ -69,15 +69,15 @@ open ~/Applications/TimerForTerry.app
 | `swift: command not found` | `xcode-select --install` 로 Command Line Tools 설치 |
 | `./build-app.sh: Permission denied` | `chmod +x build-app.sh` 후 다시 실행 |
 | 창이 안 보임 | 다른 모니터/화면 가장자리 확인. Dock 아이콘을 클릭하면 다시 앞으로 나옵니다 |
-| 설정/통계 초기화하고 싶음 | `defaults delete com.terry.timerforterry` 실행 |
+| 설정/통계 초기화하고 싶음 | `defaults delete com.timer.app` 실행 |
 | 업데이트(최신 코드 반영) | `git pull` 후 `./build-app.sh` 다시 실행 |
 
 ## 구조
 
 | 파일 | 역할 |
 |------|------|
-| `Sources/TimerForTerry/main.swift` | 앱 진입점 · 플로팅 패널(`NSPanel`) 구성 |
-| `Sources/TimerForTerry/Model.swift` | 포모도로 로직 · 통계 저장(`UserDefaults`) |
-| `Sources/TimerForTerry/Views.swift` | 타이머 UI · 통계/설정 팝오버 |
+| `Sources/Timer/main.swift` | 앱 진입점 · 플로팅 패널(`NSPanel`) 구성 |
+| `Sources/Timer/Model.swift` | 포모도로 로직 · 통계 저장(`UserDefaults`) |
+| `Sources/Timer/Views.swift` | 타이머 UI · 통계/설정 팝오버 |
 
 설정과 통계는 `UserDefaults`에 저장되어 재실행해도 유지됩니다.

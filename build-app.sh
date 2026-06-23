@@ -1,9 +1,9 @@
 #!/bin/bash
-# TimerForTerry.app 번들을 만들어 ~/Applications 에 설치합니다.
+# Timer.app 번들을 만들어 ~/Applications 에 설치합니다.
 set -e
 cd "$(dirname "$0")"
 
-APP_NAME="TimerForTerry"
+APP_NAME="Timer"
 APP_DIR="$APP_NAME.app"
 
 echo "▶ 릴리스 빌드 중..."
@@ -33,9 +33,9 @@ cat > "$APP_DIR/Contents/Info.plist" <<EOF
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>            <string>$APP_NAME</string>
-    <key>CFBundleDisplayName</key>     <string>Timer for Terry</string>
+    <key>CFBundleDisplayName</key>     <string>Timer</string>
     <key>CFBundleExecutable</key>      <string>$APP_NAME</string>
-    <key>CFBundleIdentifier</key>      <string>com.terry.timerforterry</string>
+    <key>CFBundleIdentifier</key>      <string>com.timer.app</string>
     <key>CFBundleVersion</key>         <string>1.0</string>
     <key>CFBundleShortVersionString</key><string>1.0</string>
     <key>CFBundlePackageType</key>     <string>APPL</string>

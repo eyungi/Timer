@@ -1,5 +1,5 @@
 .build/
-TimerForTerry.app/
+Timer.app/
 .DS_Store
 *.xcodeproj
 icon_1024.png
