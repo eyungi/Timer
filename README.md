@@ -12,48 +12,65 @@ Focus-To-Do의 측정 화면이 너무 커서, 화면 한쪽에 살짝 떠있는
 - **Dock 앱** — Dock 아이콘으로 실행/종료, ⌘Q 지원
 - **닫기(×)** — 창을 닫아도 타이머는 Dock에서 계속 동작, Dock 아이콘 클릭으로 다시 열기
 
-## 요구사항
+## 설치하기
 
-- **Apple Silicon Mac** (M1 이상), macOS 14 이상
-- **Xcode Command Line Tools** — Swift 컴파일러가 필요합니다. 없다면:
+이 앱은 코드 서명이 안 되어 있어, 만들어진 파일을 받는 대신 **각자 소스에서 직접 빌드**합니다.
+직접 빌드하면 "확인되지 않은 개발자" 같은 Gatekeeper 경고 없이 바로 실행됩니다.
+
+### 1. 요구사항
+
+- **Apple Silicon Mac** (M1 이상), **macOS 14 이상**
+- **Xcode Command Line Tools** (Swift 컴파일러). 설치 여부는 아래로 확인:
+  ```bash
+  swift --version
+  ```
+  `command not found`가 나오면 설치:
   ```bash
   xcode-select --install
   ```
 
-> 코드 서명이 안 된 앱이라 배포된 `.app`을 그냥 받는 대신, **각자 소스에서 직접 빌드**하는 방식입니다.
-> 직접 빌드하면 Gatekeeper 경고 없이 바로 실행됩니다.
-
-## 빌드 & 설치
+### 2. 내려받아 빌드
 
 ```bash
-git clone <이 저장소 주소>
+git clone https://github.com/<아이디>/timer-for-terry.git
 cd timer-for-terry
 ./build-app.sh
 ```
 
-`~/Applications/TimerForTerry.app` 에 설치됩니다. 실행:
+빌드가 끝나면 `~/Applications/TimerForTerry.app` 에 자동 설치됩니다.
+(`Permission denied`가 나면 `chmod +x build-app.sh` 후 다시 실행)
+
+### 3. 실행 & Dock 고정
 
 ```bash
 open ~/Applications/TimerForTerry.app
 ```
 
-개발 중 빠른 실행 (번들 없이 바로):
+- 실행하면 화면 우측 상단에 작은 타이머 창이 뜹니다.
+- **Dock에 계속 두려면**: 실행 중에 Dock 아이콘 우클릭 → **옵션 → Dock에 유지**.
+- 로그인 시 자동 실행하려면: 시스템 설정 → 일반 → 로그인 항목 → `+` 로 추가.
 
-```bash
-swift run -c release
-```
-
-설치 후 **Dock에 고정**하려면, 실행된 상태에서 Dock 아이콘을 우클릭 → "옵션 → Dock에 유지"를 선택하세요.
+> 빌드 없이 한 번만 실행해보려면 `swift run -c release` 도 됩니다(번들/아이콘 없음).
 
 ## 사용법
 
 - ▶ / ⏸ : 시작 / 일시정지
 - ↺ : 현재 단계 리셋
-- 📊 : 통계 보기
-- ⚙ : 설정 (시간 조정 · 스크롤로 값 조절 · **건너뛰기** · **종료**)
+- 📊 : 통계 보기 (오늘·이번 주·최근 7일)
+- ⚙ : 설정 — 집중/휴식 시간 조정(**숫자 위에서 스크롤** 또는 +/− 버튼) · **건너뛰기** · **종료**
 - ✕ (좌측 상단) : 창 닫기 → Dock 아이콘 클릭으로 다시 열기
 - ⌘Q : 완전 종료
 - 창 **배경을 드래그**하면 위치 이동
+
+## 문제 해결
+
+| 증상 | 해결 |
+|------|------|
+| `swift: command not found` | `xcode-select --install` 로 Command Line Tools 설치 |
+| `./build-app.sh: Permission denied` | `chmod +x build-app.sh` 후 다시 실행 |
+| 창이 안 보임 | 다른 모니터/화면 가장자리 확인. Dock 아이콘을 클릭하면 다시 앞으로 나옵니다 |
+| 설정/통계 초기화하고 싶음 | `defaults delete com.terry.timerforterry` 실행 |
+| 업데이트(최신 코드 반영) | `git pull` 후 `./build-app.sh` 다시 실행 |
 
 ## 구조
 
