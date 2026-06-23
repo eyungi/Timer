@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import UserNotifications
 
 /// Borderless floating panel that can still take keyboard/mouse focus
 /// so the SwiftUI controls inside it stay interactive.
@@ -8,11 +9,12 @@ final class FloatingPanel: NSPanel {
     override var canBecomeMain: Bool { true }
 }
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     private var panel: FloatingPanel!
     private let model = TimerModel()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        requestNotificationPermission()
         setupMainMenu()
         let root = ContentView(onClose: { [weak self] in self?.panel?.orderOut(nil) })
             .environmentObject(model)
@@ -57,6 +59,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool { true }
+
+    /// 단계 완료 알림을 띄우기 위한 권한 요청. .app 번들에서만 동작한다.
+    private func requestNotificationPermission() {
+        guard Bundle.main.bundleIdentifier != nil else { return }
+        let center = UNUserNotificationCenter.current()
+        center.delegate = self
+        center.requestAuthorization(options: [.alert, .sound]) { _, _ in }
+    }
+
+    /// 앱이 맨 앞에 있을 때도 알림 배너가 뜨도록 한다.
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                               willPresent notification: UNNotification,
+                               withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .sound])
+    }
 
     private func setupMainMenu() {
         let mainMenu = NSMenu()

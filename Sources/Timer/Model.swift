@@ -1,6 +1,7 @@
 import Foundation
 import AppKit
 import SwiftUI
+import UserNotifications
 
 // MARK: - Timer mode
 
@@ -74,14 +75,14 @@ final class StatsStore: ObservableObject {
 
     var totalSessions: Int { records.count }
 
-    /// Minutes per day for the last 7 days, oldest first.
+    /// Minutes per day for the last 7 days, today first.
     var last7Days: [(label: String, minutes: Int)] {
         let cal = Calendar.current
         let fmt = DateFormatter()
         fmt.locale = Locale(identifier: "ko_KR")
         fmt.dateFormat = "E"
         let today = cal.startOfDay(for: Date())
-        return (0..<7).reversed().map { offset in
+        return (0..<7).map { offset in
             let day = cal.date(byAdding: .day, value: -offset, to: today)!
             let minutes = records
                 .filter { cal.isDate($0.date, inSameDayAs: day) }
@@ -167,8 +168,22 @@ final class TimerModel: ObservableObject {
     private func complete() {
         pause()
         NSSound(named: "Glass")?.play()
+        let finished = mode
         advance(recordFocus: true)
-        start() // auto-continue into the next phase, like Focus-To-Do
+        // 자동으로 다음 단계를 시작하지 않는다. 알림을 보내고 멈춰서 대기하며,
+        // 사용자가 직접 재생 버튼을 눌러야 다음 단계가 시작된다.
+        notifyPhaseChange(finished: finished, next: mode)
+    }
+
+    /// 한 단계가 끝났을 때 시스템 알림을 띄운다.
+    private func notifyPhaseChange(finished: TimerMode, next: TimerMode) {
+        // .app 번들로 실행할 때만 알림 사용 (bare executable 에선 크래시 방지).
+        guard Bundle.main.bundleIdentifier != nil else { return }
+        let content = UNMutableNotificationContent()
+        content.title = "\(finished.title) 완료"
+        content.body = "\(next.title) 시간이에요. 시작하려면 재생 버튼을 누르세요."
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request)
     }
 
     private func advance(recordFocus: Bool) {

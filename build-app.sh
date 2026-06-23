@@ -46,6 +46,11 @@ cat > "$APP_DIR/Contents/Info.plist" <<EOF
 </plist>
 EOF
 
+echo "▶ 코드 서명 중 (ad-hoc)..."
+# UNUserNotificationCenter(알림)는 Info.plist 가 묶인 번들 서명이 있어야 동작한다.
+# 링커 기본 ad-hoc 서명은 Info.plist 가 묶이지 않으므로 번들 전체를 다시 서명한다.
+codesign --force --deep --sign - "$APP_DIR"
+
 echo "▶ ~/Applications 에 설치 중..."
 mkdir -p "$HOME/Applications"
 rm -rf "$HOME/Applications/$APP_DIR"

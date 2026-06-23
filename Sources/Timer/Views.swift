@@ -142,7 +142,12 @@ struct StatsView: View {
         let maxMin = max(data.map(\.minutes).max() ?? 0, 1)
         return HStack(alignment: .bottom, spacing: 6) {
             ForEach(Array(data.enumerated()), id: \.offset) { _, day in
-                VStack(spacing: 4) {
+                VStack(spacing: 2) {
+                    Text(day.minutes > 0 ? "\(day.minutes)m" : "")
+                        .font(.system(size: 8, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
                     RoundedRectangle(cornerRadius: 3)
                         .fill(day.minutes > 0 ? Color.orange : Color.secondary.opacity(0.2))
                         .frame(height: max(4, CGFloat(day.minutes) / CGFloat(maxMin) * 52))
@@ -151,7 +156,7 @@ struct StatsView: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .frame(height: 70)
+        .frame(height: 84)
     }
 }
 
