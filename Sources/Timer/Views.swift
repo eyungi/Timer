@@ -72,16 +72,17 @@ struct ContentView: View {
     }
 
     private var controls: some View {
-        HStack(spacing: 16) {
-            iconButton(model.isRunning ? "pause.fill" : "play.fill", size: 18) {
+        HStack(spacing: 8) {
+            iconButton(model.isRunning ? "pause.fill" : "play.fill", size: 15) {
                 model.toggle()
             }
-            iconButton("arrow.counterclockwise", size: 15) { model.reset() }
-            iconButton("chart.bar.fill", size: 15) { showStats.toggle() }
+            iconButton("forward.end.fill", size: 12) { model.skip() }
+            iconButton("arrow.counterclockwise", size: 12) { model.reset() }
+            iconButton("chart.bar.fill", size: 12) { showStats.toggle() }
                 .popover(isPresented: $showStats, arrowEdge: .bottom) {
                     StatsView().environmentObject(model)
                 }
-            iconButton("gearshape.fill", size: 15) { showSettings.toggle() }
+            iconButton("gearshape.fill", size: 12) { showSettings.toggle() }
                 .popover(isPresented: $showSettings, arrowEdge: .bottom) {
                     SettingsView().environmentObject(model)
                 }
@@ -93,7 +94,7 @@ struct ContentView: View {
             Image(systemName: name)
                 .font(.system(size: size))
                 .foregroundStyle(.primary)
-                .frame(width: 30, height: 30)
+                .frame(width: 26, height: 26)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -173,29 +174,6 @@ struct SettingsView: View {
             stepperRow("휴식 시간", value: $model.shortBreakMinutes, range: 1...60, unit: "분")
             stepperRow("긴 휴식", value: $model.longBreakMinutes, range: 1...60, unit: "분")
             stepperRow("긴 휴식까지", value: $model.roundsBeforeLongBreak, range: 1...10, unit: "회")
-
-            Divider()
-
-            HStack(spacing: 8) {
-                Button {
-                    model.skip()
-                } label: {
-                    Label("건너뛰기", systemImage: "forward.end.fill")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-                .help("현재 단계를 끝내고 다음 단계로")
-
-                Button {
-                    NSApplication.shared.terminate(nil)
-                } label: {
-                    Label("종료", systemImage: "power")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-                .tint(.red)
-            }
-            .controlSize(.large)
         }
         .padding(16)
         .frame(width: 240)
