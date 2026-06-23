@@ -1,0 +1,7 @@
+.build/
+TimerForTerry.app/
+.DS_Store
+*.xcodeproj
+icon_1024.png
+AppIcon.iconset/
+AppIcon.icns
