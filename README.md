@@ -32,8 +32,8 @@ Focus-To-Do의 측정 화면이 너무 커서, 화면 한쪽에 살짝 떠있는
 ### 2. 내려받아 빌드
 
 ```bash
-git clone https://github.com/<아이디>/timer.git
-cd timer
+git clone https://github.com/eyungi/Timer.git
+cd Timer
 ./build-app.sh
 ```
 
