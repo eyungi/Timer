@@ -171,36 +171,66 @@ struct SettingsView: View {
 
             Divider()
 
-            HStack {
-                Button("건너뛰기") { model.skip() }
-                Spacer()
-                Button("종료") { NSApplication.shared.terminate(nil) }
-                    .foregroundStyle(.red)
+            HStack(spacing: 8) {
+                Button {
+                    model.skip()
+                } label: {
+                    Label("건너뛰기", systemImage: "forward.end.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .help("현재 단계를 끝내고 다음 단계로")
+
+                Button {
+                    NSApplication.shared.terminate(nil)
+                } label: {
+                    Label("종료", systemImage: "power")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .tint(.red)
             }
-            .buttonStyle(.borderless)
+            .controlSize(.large)
         }
         .padding(16)
         .frame(width: 240)
     }
 
     private func stepperRow(_ title: String, value: Binding<Int>, range: ClosedRange<Int>, unit: String) -> some View {
-        HStack {
+        func set(_ v: Int) {
+            let next = min(max(v, range.lowerBound), range.upperBound)
+            if next != value.wrappedValue { value.wrappedValue = next }
+        }
+        return HStack {
             Text(title).font(.callout)
             Spacer()
-            Text("\(value.wrappedValue)\(unit)")
-                .font(.callout.monospacedDigit())
-                .foregroundStyle(.secondary)
-                .frame(minWidth: 40, alignment: .trailing)
-                .padding(.vertical, 3)
-                .padding(.horizontal, 8)
-                .background(Color.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 6))
-                .overlay(ScrollAdjust { step in
-                    let next = min(max(value.wrappedValue + step, range.lowerBound), range.upperBound)
-                    if next != value.wrappedValue { value.wrappedValue = next }
-                })
-                .help("스크롤하거나 버튼으로 조절")
-            Stepper("", value: value, in: range).labelsHidden()
+            HStack(spacing: 6) {
+                Text("\(value.wrappedValue)\(unit)")
+                    .font(.callout.monospacedDigit())
+                    .frame(minWidth: 36, alignment: .trailing)
+                    .overlay(ScrollAdjust { step in set(value.wrappedValue + step) })
+                Divider().frame(height: 18)
+                VStack(spacing: 0) {
+                    chevron("chevron.up") { set(value.wrappedValue + 1) }
+                    chevron("chevron.down") { set(value.wrappedValue - 1) }
+                }
+            }
+            .padding(.vertical, 3)
+            .padding(.horizontal, 8)
+            .background(Color.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 6))
+            .help("스크롤하거나 ▲▼ 버튼으로 조절")
         }
+    }
+
+    private func chevron(_ name: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: name)
+                .font(.system(size: 8, weight: .bold))
+                .foregroundStyle(.secondary)
+                .frame(width: 18, height: 10)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 
