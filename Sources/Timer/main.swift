@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 import UserNotifications
 
@@ -12,10 +13,13 @@ final class FloatingPanel: NSPanel {
 final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     private var panel: FloatingPanel!
     private let model = TimerModel()
+    private var statusItem: NSStatusItem!
+    private var cancellables = Set<AnyCancellable>()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         requestNotificationPermission()
         setupMainMenu()
+        setupStatusItem()
         let root = ContentView(onClose: { [weak self] in self?.panel?.orderOut(nil) })
             .environmentObject(model)
         let hosting = NSHostingView(rootView: root)
@@ -85,6 +89,45 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle: "종료", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         NSApp.mainMenu = mainMenu
+    }
+
+    // MARK: - Menu bar status item (RunCat 스타일)
+
+    /// 메뉴바에 남은 시간을 표시하는 상태 아이템을 만든다.
+    private func setupStatusItem() {
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        if let button = item.button {
+            // 숫자 폭이 매초 흔들리지 않도록 고정폭 숫자 폰트 사용.
+            button.font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
+            button.action = #selector(statusItemClicked)
+            button.target = self
+        }
+        self.statusItem = item
+
+        // 남은 시간/모드/실행 상태가 바뀔 때마다 메뉴바 표시를 갱신한다.
+        model.$remaining.combineLatest(model.$mode, model.$isRunning)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.updateStatusItem() }
+            .store(in: &cancellables)
+        updateStatusItem()
+    }
+
+    /// 모드별 이모지(🔥 집중 / 💤 휴식)와 MM:SS 남은 시간을 메뉴바에 표시한다.
+    private func updateStatusItem() {
+        let emoji = model.mode == .focus ? "🔥" : "💤"
+        let m = model.remaining / 60
+        let s = model.remaining % 60
+        statusItem?.button?.title = String(format: "%@ %d:%02d", emoji, m, s)
+    }
+
+    /// 메뉴바 아이템을 클릭하면 플로팅 타이머 창을 켜고/끈다.
+    @objc private func statusItemClicked() {
+        guard let panel = panel else { return }
+        if panel.isVisible {
+            panel.orderOut(nil)
+        } else {
+            panel.orderFrontRegardless()
+        }
     }
 }
 
