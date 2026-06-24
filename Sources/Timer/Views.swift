@@ -45,7 +45,7 @@ struct ContentView: View {
         ZStack {
             Circle().stroke(.quaternary, lineWidth: 7)
             Circle()
-                .trim(from: 0, to: model.progress())
+                .trim(from: 0, to: 1 - model.progress())
                 .stroke(model.mode.color, style: StrokeStyle(lineWidth: 7, lineCap: .round))
                 .rotationEffect(.degrees(-90))
                 .animation(.linear(duration: 0.25), value: model.remaining)
