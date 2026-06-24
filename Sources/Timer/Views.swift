@@ -1,6 +1,17 @@
 import SwiftUI
 import AppKit
 
+// MARK: - Cursor helper
+
+extension View {
+    /// 마우스를 올리면 손가락(클릭 가능) 커서로 바꾼다.
+    func clickableCursor() -> some View {
+        onHover { hovering in
+            if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+        }
+    }
+}
+
 // MARK: - Main compact view
 
 struct ContentView: View {
@@ -36,6 +47,7 @@ struct ContentView: View {
                     .contentShape(Circle())
             }
             .buttonStyle(.plain)
+            .clickableCursor()
             .padding(6)
             .help("창 닫기 (Dock 아이콘으로 다시 열기)")
         }
@@ -59,6 +71,10 @@ struct ContentView: View {
             }
         }
         .frame(width: 104, height: 104)
+        .contentShape(Circle())
+        .onTapGesture { model.toggle() }
+        .clickableCursor()
+        .help(model.isRunning ? "정지" : "시작")
     }
 
     private var dots: some View {
@@ -98,6 +114,7 @@ struct ContentView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .clickableCursor()
     }
 }
 
@@ -214,6 +231,7 @@ struct SettingsView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .clickableCursor()
     }
 }
 

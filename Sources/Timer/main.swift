@@ -120,14 +120,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         statusItem?.button?.title = String(format: "%@ %d:%02d", emoji, m, s)
     }
 
-    /// 메뉴바 아이템을 클릭하면 플로팅 타이머 창을 켜고/끈다.
+    /// 메뉴바 아이템을 클릭하면 타이머를 재생/정지 토글한다.
     @objc private func statusItemClicked() {
-        guard let panel = panel else { return }
-        if panel.isVisible {
-            panel.orderOut(nil)
-        } else {
-            panel.orderFrontRegardless()
-        }
+        model.toggle()
     }
 }
 

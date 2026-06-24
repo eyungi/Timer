@@ -30,6 +30,9 @@ enum TimerMode {
 struct SessionRecord: Codable {
     let date: Date
     let minutes: Int
+    /// 완료한 세션이면 true. 되돌리기로 합산한 부분 시간은 false (세션 수엔 안 들어감).
+    /// 옛 데이터는 이 키가 없으므로 nil → 세션으로 간주.
+    var isSession: Bool? = nil
 }
 
 final class StatsStore: ObservableObject {
@@ -39,9 +42,18 @@ final class StatsStore: ObservableObject {
     init() { load() }
 
     func record(minutes: Int) {
-        records.append(SessionRecord(date: Date(), minutes: minutes))
+        records.append(SessionRecord(date: Date(), minutes: minutes, isSession: true))
         save()
     }
+
+    /// 되돌리기로 흘려보낸 부분 시간을 합산한다. 시간만 더하고 세션 수엔 넣지 않는다.
+    func recordPartial(minutes: Int) {
+        guard minutes > 0 else { return }
+        records.append(SessionRecord(date: Date(), minutes: minutes, isSession: false))
+        save()
+    }
+
+    private func countsAsSession(_ r: SessionRecord) -> Bool { r.isSession ?? true }
 
     private func load() {
         guard let data = UserDefaults.standard.data(forKey: key),
@@ -64,7 +76,7 @@ final class StatsStore: ObservableObject {
 
     var todaySessions: Int {
         let cal = Calendar.current
-        return records.filter { cal.isDateInToday($0.date) }.count
+        return records.filter { cal.isDateInToday($0.date) && countsAsSession($0) }.count
     }
 
     var weekMinutes: Int {
@@ -73,16 +85,17 @@ final class StatsStore: ObservableObject {
             .reduce(0) { $0 + $1.minutes }
     }
 
-    var totalSessions: Int { records.count }
+    var totalSessions: Int { records.filter { countsAsSession($0) }.count }
 
-    /// Minutes per day for the last 7 days, today first.
+    /// Minutes per day for the last 7 days, oldest first (today last).
     var last7Days: [(label: String, minutes: Int)] {
         let cal = Calendar.current
         let fmt = DateFormatter()
         fmt.locale = Locale(identifier: "ko_KR")
         fmt.dateFormat = "E"
         let today = cal.startOfDay(for: Date())
-        return (0..<7).map { offset in
+        // 가장 오래된 날(6일 전)이 왼쪽, 오늘이 오른쪽 끝에 오도록 시간순 정렬.
+        return (0..<7).reversed().map { offset in
             let day = cal.date(byAdding: .day, value: -offset, to: today)!
             let minutes = records
                 .filter { cal.isDate($0.date, inSameDayAs: day) }
@@ -138,6 +151,11 @@ final class TimerModel: ObservableObject {
     }
 
     func reset() {
+        // 집중 단계에서 흘러간 시간(전체-남은)을 분 단위로 내림해 오늘 작업에 합산.
+        if mode == .focus {
+            let elapsedMinutes = (duration(for: .focus) - remaining) / 60
+            stats.recordPartial(minutes: elapsedMinutes)
+        }
         pause()
         remaining = duration(for: mode)
     }
